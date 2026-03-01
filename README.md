@@ -47,7 +47,7 @@ This will connect your server with the database container:
     <img src="./docs/images/environments-localhost.png" width="400">
 </div>
 
-#### Containerisation
+#### Containerization
 
 To run as the api service as a container set the postgres host to the service name:
 
@@ -201,7 +201,7 @@ just test
 
 ## Discussion
 
-### Assumptions
+### Assumptions
 
 1. `Schedule ID` is an opaque reference string
 
@@ -221,7 +221,7 @@ After encryption names can be assumed to be less than 200 characters.
 
 4. Only the `patient_id`, `first_name`, `last_name` should be encrypted
 
-### Approach
+### Approach
 
 #### Validation
 
