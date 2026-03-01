@@ -1,11 +1,11 @@
 # Scheduling
 
-![Review](https://img.shields.io/github/actions/workflow/statuContents:
-s/JoelLefkowitz/scheduling/review.yaml)
+![Review](https://img.shields.io/github/actions/workflow/status/JoelLefkowitz/scheduling/review.yaml)
 
 Scheduling ingestion layer.
 
 - [Usage](#usage)
+- [Examples](#examples)
 - [Tooling](#tooling)
 
 ## Usage
@@ -16,21 +16,17 @@ Scheduling ingestion layer.
 poetry install --with all
 ```
 
+This installs all the project dependencies and the development tooling.
+
 ### Running
 
-Services are containerised and PostgreSQL is used across all environments for consistency and reliability.
+To start the application, set these environment variables:
 
-#### Local
-
-To run locally, set these environment variables:
-
-- `DJANGO_SETTINGS_MODULE`: `"scheduling.settings.local"`
-- `DJANGO_SECRET_KEY`: (generate a random key)
-- `DJANGO_FIELD_ENCRYPTION_KEY`: (generate a random key)
-
-##### Connect
-
-![Environments localhost](./docs/images/environments-localhost.png)
+| Variable                      | Value                         |
+| ----------------------------- | ----------------------------- |
+| `DJANGO_SETTINGS_MODULE`      | `"scheduling.settings.local"` |
+| `DJANGO_SECRET_KEY`           | Generate a random key         |
+| `DJANGO_FIELD_ENCRYPTION_KEY` | Generate a random key         |
 
 Start the database container:
 
@@ -44,43 +40,59 @@ Start the development server:
 python src/manage.py runserver
 ```
 
-##### Container
+This will connect your server with the database container:
 
-![Environments container](./docs/images/environments-container.png)
+<div align='center'>
+    <img src="./docs/images/environments-localhost.png" width="400">
+</div>
 
-When running from inside a container, also set:
+#### Containerisation
 
-- `POSTGRES_HOST`: `"scheduling-database"`
+To run as the api service as a container set the postgres host to the service name:
 
-Run both the API and database containers:
+| Variable        | Value                   |
+| --------------- | ----------------------- |
+| `POSTGRES_HOST` | `"scheduling-database"` |
 
 ```sh
 docker compose up --build
 ```
 
+This will launch and connect an api service container with the database container:
+
+<div align='center'>
+    <img src="./docs/images/environments-container.png" width="400">
+</div>
+
 #### Production
 
 To run in production, set these environment variables:
 
-- `DJANGO_SETTINGS_MODULE`: `"scheduling.settings.prod"`
-- `DJANGO_HOST_DOMAIN`: (your domain)
-- `POSTGRES_DB`: (database name)
-- `POSTGRES_USER`: (database user)
-- `POSTGRES_PASSWORD`: (database password)
+| Variable                 | Value                        |
+| ------------------------ | ---------------------------- |
+| `DJANGO_SETTINGS_MODULE` | `"scheduling.settings.prod"` |
+| `DJANGO_HOST_DOMAIN`     | Deployment domain            |
+| `POSTGRES_DB`            | Database name                |
+| `POSTGRES_USER`          | Database user                |
+| `POSTGRES_PASSWORD`      | Database password            |
 
 ### Endpoints
 
-| Endpoint        | Purpose                         |
-| --------------- | ------------------------------- |
-| `POST /ingest/` | HL7 procedure ingestion service |
-| `GET /docs/`    | OpenAPI - Swagger UI            |
-| `GET /admin/`   | Admin interface                 |
+The application exposes the following endpoints:
 
-#### Example Responses
+| Endpoint   | Purpose                         |
+| ---------- | ------------------------------- |
+| `/ingest/` | HL7 procedure ingestion service |
+| `/admin/*` | Django admin interface          |
+| `/docs/`   | Swagger UI (OpenAPI)            |
 
-All responses are tested in `tests/`. You can test these manually via `/docs/`
+## Examples
 
-##### Success
+> Unit tests for these requests/responses are in `tests/*`.
+
+### Procedure creation
+
+Given a valid HL7 procedure payload a procedure and patient instance are created.
 
 Request:
 
@@ -109,7 +121,9 @@ Response:
 }
 ```
 
-##### Parsing errors
+### Parsing errors
+
+If the HL7 payload cannot be parsed, a structured error message is returned.
 
 Request:
 
@@ -133,7 +147,9 @@ Response:
 }
 ```
 
-##### Validation errors
+### Validation errors
+
+If the HL7 payload contains invalid field data, a structured error message is returned.
 
 Request:
 
