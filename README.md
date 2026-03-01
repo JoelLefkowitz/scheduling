@@ -7,6 +7,7 @@ Scheduling ingestion layer.
 - [Usage](#usage)
 - [Examples](#examples)
 - [Tooling](#tooling)
+- [Discussion](#discussion)
 
 ## Usage
 
@@ -194,4 +195,91 @@ just format
 
 ```sh
 just test
+```
+
+## Discussion
+
+### Assumptions
+
+1. `Schedule ID` is an opaque reference string
+
+It is not an internal schedule table foreign key
+
+2. There are reasonable field length constraints
+
+- `schedule_id`: 75 characters
+- `procedure_code`: 50 characters
+- `patient_id`: 50 characters
+- `first_name`: 100 characters
+- `last_name`: 100 characters
+
+After encryption names can be assumed to be less than 200 characters.
+
+3. No need to implement a full HL7 parser for other payload types
+
+4. Only the `patient_id`, `first_name`, `last_name` should be encrypted
+
+### Approach
+
+#### Validation
+
+HL7 is not parsed in the serializer classes. Instead, parsing and validation are split into separate steps:
+
+- Structure validation: `services/*` modules validate the basic HL7 structure independently, allowing thorough testing and clear separation of concerns
+- Field validation: Individual field validators (e.g., DateField) remain in the serializer for domain-specific validation
+
+An intermediate dataclass, `ProcedurePayload`, bridges the parsing and validation.
+
+#### Models
+
+A single model could combine patient and procedure data into one table. This approach would cause significant field duplication since a patient can have many procedures. A likely future feature would be to allow queries for a specific patient's procedures. A single model would make this impractical.
+
+<div align='center'>
+    <img src="./docs/images/models-single.png" width="400">
+</div>
+
+Three models separate patient, procedure, and common procedure fields into individual tables. This provides better structure but would require a significant amount of seed data mapping procedure codes and names to be beneficial which is impractical for this use case.
+
+<div align='center'>
+    <img src="./docs/images/models-triple.png" width="400">
+</div>
+
+Using two models separates the patient and procedure data while keeping the implementation manageable. The `ProcedureSerializer` calls `Patient.objects.get_or_create` to handle patient lookups or creation.
+
+<div align='center'>
+    <img src="./docs/images/models-double.png" width="400">
+</div>
+
+This allows for a rich, well-organized response:
+
+```json
+{
+  "id": 1,
+  "schedule_id": "A1001",
+  "procedure_code": "PROC123",
+  "procedure_date": "2025-01-02",
+  "start_time": "09:30:00",
+  "end_time": "12:00:00",
+  "patient": {
+    "id": 1,
+    "patient_id": "123456",
+    "first_name": "JOHN",
+    "last_name": "DOE"
+  }
+}
+```
+
+#### Encryption
+
+The `encrypted_model_fields` package is used to encrypt the patient fields:
+
+```py
+from django.db import models
+from encrypted_model_fields.fields import EncryptedCharField
+
+
+class Patient(models.Model):
+    patient_id = EncryptedCharField(max_length=200, unique=True)
+    first_name = EncryptedCharField(max_length=200)
+    last_name = EncryptedCharField(max_length=200)
 ```
