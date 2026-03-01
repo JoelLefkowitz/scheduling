@@ -33,7 +33,7 @@ class ProcedureIngestView(APIView):
     def post(self, request):
         """
         Ingest and persist an HL7 procedure scheduling message.
- 
+
         Returns:
             Response: created procedure and nested patient data
         """
