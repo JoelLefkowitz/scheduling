@@ -73,7 +73,7 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 addopts = "--cov=src"
 filterwarnings = ["ignore:No directory:UserWarning"]
-
+DJANGO_SETTINGS_MODULE = "scheduling.settings.test"
 
 [tool.coverage.run]
 omit = [
