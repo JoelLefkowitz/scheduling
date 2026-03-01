@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_standardized_errors",
     "drf_yasg",
+    "procedures",
 ]
 
 MIDDLEWARE = [
