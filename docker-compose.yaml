@@ -1,0 +1,18 @@
+services:
+  api:
+    build: .
+    container_name: scheduling-api
+    env_file: .env
+    ports:
+      - "8000:80"
+
+  database:
+    image: postgres:16
+    container_name: scheduling-database
+    environment:
+      POSTGRES_HOST: localhost
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432

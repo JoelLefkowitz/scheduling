@@ -59,6 +59,8 @@ To run as the api service as a container set the postgres host to the service na
 docker compose up --build
 ```
 
+The container will read environment variables from a `.env` file if present.
+
 This will launch and connect an api service container with the database container:
 
 <div align='center'>
