@@ -1,0 +1,85 @@
+[project]
+name = "scheduling"
+description = "Scheduling ingestion layer."
+
+requires-python = ">= 3.14"
+dynamic = ["version"]
+
+dependencies = [
+    "django (>=6.0.2,<7.0.0)",
+    "django-encrypted-model-fields (>=0.6.5,<1.0.0); python_version < '4.0'",
+    "djangorestframework (>=3.16.1,<4.0.0)",
+    "drf-standardized-errors (>=0.15.0,<0.16.0)",
+    "drf-yasg (>=1.21.15,<2.0.0)",
+    "gunicorn (>=25.1.0,<26.0.0)",
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "whitenoise (>=6.12.0,<7.0.0)",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.all]
+optional = true
+
+[tool.poetry.group.all.dependencies]
+mypy = "^1.19.1"
+pytest = "^9.0.2"
+pytest-cov = "^7.0.0"
+ruff = "^0.15.2"
+trufflehog3 = "^3.0.10"
+pytest-django = "^4.12.0"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "C4",
+    "SIM",
+    "ASYNC",
+    "LOG",
+    "RUF",
+    "S",
+    "T10",
+    "PIE",
+    "DJ",
+    "T",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*" = ["RUF012"]
+"**/models.py" = ["DJ008"]
+"**/serializers.py" = ["RUF012"]
+"**/settings/*" = ["E501"]
+"**/settings/test.py" = ["F811", "S105"]
+"**/tests/*" = ["E501", "S101"]
+"**/views.py" = ["RUF012"]
+
+[tool.mypy]
+exclude = ["migrations"]
+ignore_missing_imports = true
+disable_error_code = ["var-annotated"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "--cov=src"
+filterwarnings = ["ignore:No directory:UserWarning"]
+
+
+[tool.coverage.run]
+omit = [
+    "*/asgi.py",
+    "*/manage.py",
+    "*/migrations/*",
+    "*/settings/*",
+    "*/wsgi.py",
+]

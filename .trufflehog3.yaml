@@ -1,0 +1,17 @@
+severity: low
+exclude:
+  - message: Untracked local files
+    paths:
+      - .env
+
+  - message: Dependencies
+    paths:
+      - venv
+
+  - message: Tooling outputs
+    paths:
+      - .mypy_cache
+      - .pytest_cache
+      - .ruff_cache
+      - .coverage
+      - poetry.lock
